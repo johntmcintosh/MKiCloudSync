@@ -30,6 +30,8 @@
 
 #import "MKiCloudSync.h"
 
+static NSArray *keysToSync;
+
 @implementation MKiCloudSync
 
 +(void) updateToiCloud:(NSNotification*) notificationObject {
@@ -37,8 +39,9 @@
     NSDictionary *dict = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
     
     [dict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        
-        [[NSUbiquitousKeyValueStore defaultStore] setObject:obj forKey:key];
+        if ( [keysToSync containsObject:key] ) {
+            [[NSUbiquitousKeyValueStore defaultStore] setObject:obj forKey:key];
+        }
     }];
     
     [[NSUbiquitousKeyValueStore defaultStore] synchronize];
@@ -56,8 +59,9 @@
                                                   object:nil];
 
     [dict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        
-        [[NSUserDefaults standardUserDefaults] setObject:obj forKey:key];
+        if ( [keysToSync containsObject:key] ) {
+            [[NSUserDefaults standardUserDefaults] setObject:obj forKey:key];
+        }
     }];
 
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -105,4 +109,12 @@
                                                     name:NSUserDefaultsDidChangeNotification 
                                                   object:nil];
 }
+
+
++ (void)startWithKeysToSync:(NSArray *)someKeysToSync
+{
+    keysToSync = [NSArray arrayWithArray:someKeysToSync];
+    [[self class] start];
+}
+
 @end
