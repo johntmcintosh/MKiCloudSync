@@ -41,5 +41,6 @@
 
 @interface MKiCloudSync : NSObject
 
-+(void) start;
++ (void)startWithKeysToSync:(NSArray *)keysToSync;
+
 @end
